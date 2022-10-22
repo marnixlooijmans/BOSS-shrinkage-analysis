@@ -101,7 +101,7 @@ if __name__ == "__main__":
     powerlike = PowerSpectrumLikelihood()
 
     sampler = zeus.EnsembleSampler(nwalkers, ndim, powerlike.loglike)
-    sampler.run_mcmc(start, nsteps, callbacks=zeus.callbacks.SaveProgressCallback("../output/ref_chain.h5", ncheck=50))
+    sampler.run_mcmc(start, nsteps, callbacks=zeus.callbacks.SaveProgressCallback("../output/ref_chain_uncorrected.h5", ncheck=50))
 
     chain = sampler.get_chain(flat=False)
-    np.save("../output/ref_chain.npy", chain)
+    np.save("../output/ref_chain_uncorrected.npy", chain)
