@@ -93,7 +93,6 @@ if __name__ == "__main__":
     ndim = 3
     nwalkers = 6
     nsteps = 1000
-    nchains = 1
 
     start = np.zeros((nwalkers, ndim))
     start[:,0] = np.random.uniform(0.33, 0.9, nwalkers)
