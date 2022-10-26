@@ -44,11 +44,8 @@ class PowerSpectrumLikelihood():
         kmax=0.1
         self.fit_selection = get_fit_selection(kbins, kmin=kmin, kmax=kmax, pole_selection=pole_selection)
 
-        p = np.sum(self.fit_selection)
-        Hartlap_factor = (nmocks-p-2) / (nmocks-1)
-
         cov = pk_tools.read_matrix(datapath + "BOSS_DR12_NGC_z1_cov/BOSS_DR12_NGC_z1_cov_30_30_NERCOME_" + str(nmocks) + ".matrix")
-        self.Cinv = Hartlap_factor * np.linalg.inv(cov)
+        self.Cinv = np.linalg.inv(cov)
 
 
     def pk_model(self, theta):
