@@ -25,7 +25,7 @@ def get_fit_selection(kbins, kmin = 0.0, kmax = 0.4, pole_selection = [True, Tru
 
 class PowerSpectrumLikelihood():
 
-    def __init__(self, nmocks=0):
+    def __init__(self, nmocks):
         datapath = "../data/BOSS_DR12_NGC_z1/"
         datafile = datapath + "ps1D_BOSS_DR12_NGC_z1_COMPnbar_TSC_700_700_700_400_renorm.dat"
         self.W = pk_tools.read_matrix(datapath + "W_BOSS_DR12_NGC_z1_V6C_1_1_1_1_1_10_200_2000_averaged_v1.matrix")
@@ -38,16 +38,18 @@ class PowerSpectrumLikelihood():
         self.krange = pk_model_dict["k"]
 
         self.z_eff=0.38
-        self.nmocks=nmocks
 
         pole_selection=[True, False, True, False, True]
         kmin=0.0
         kmax=0.1
         self.fit_selection = get_fit_selection(kbins, kmin=kmin, kmax=kmax, pole_selection=pole_selection)
 
+        p = np.sum(self.fit_selection)
+        Hartlap_factor = (nmocks-p-2) / (nmocks-1)
+
         cov = pk_tools.read_matrix(datapath + "C_2048_BOSS_DR12_NGC_z1_V6C_1_1_1_1_1_10_200_200_prerecon.matrix")
         C = cov[np.ix_(self.fit_selection, self.fit_selection)]
-        self.Cinv = np.linalg.inv(C)
+        self.Cinv = Hartlap_factor * np.linalg.inv(C)
 
 
     def pk_model(self, theta):
@@ -82,14 +84,9 @@ class PowerSpectrumLikelihood():
 
         convolved_model = self.W@self.M@pk_model_vector
         diff = self.pk_data_vector - convolved_model
-
         fit_diff = diff[self.fit_selection]
 
-        n = self.nmocks
-        p = len(fit_diff)
-        Hartlap_factor = (n-p-2) / (n-1)
-
-        return -0.5 * (fit_diff.T @ (Hartlap_factor*self.Cinv) @ fit_diff)
+        return -0.5 * (fit_diff.T@self.Cinv@fit_diff)
 
 
 if __name__ == "__main__":
